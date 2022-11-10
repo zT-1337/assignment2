@@ -50,5 +50,20 @@ int main()
   b /= 2;
   std::cout << b.x << " " << b.y << std::endl;
 
+  std::cout << "dist" << std::endl;
+  Vec2 unitVec(3.5f, 3.5f);
+  float a_b = a.dist(b);
+  float b_c = b.dist(c);
+  float a_unitVec = a.dist(unitVec);
+  std::cout << a_b << std::endl;
+  std::cout << b_c << std::endl;
+  std::cout << a_unitVec << std::endl;
+
+  std::cout << "normalize" << std::endl;
+  b.x = 3;
+  b.y = 4;
+  b.normalize();
+  std::cout << b.x << " " << b.y << " " << b.length() << std::endl;
+
   return 0;
 }
