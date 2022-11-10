@@ -11,6 +11,28 @@ void EntityManager::update()
   }
 
   m_entitiesToAdd.clear();
+
+  removeDeadEntities(m_entities);
+  for(auto& [tag, entities] : m_entityMap)
+  {
+    removeDeadEntities(entities);
+  }
+
+}
+
+void EntityManager::removeDeadEntities(EntityVec & entities)
+{
+  EntityVec::iterator i = entities.begin();
+  while(i != entities.end())
+  {
+    if((*i)->isActive())
+    {
+      ++i;
+      continue;
+    }
+
+    entities.erase(i);
+  }
 }
 
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string & tag)
