@@ -1,7 +1,7 @@
 CC=g++
-CFLAGS=-c -Wall -std=c++11 
+CFLAGS=-c -Wall -std=c++17 -O3
 LDFLAGS=
-LIBFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
+LIBFLAGS=-lsfml-graphics -lsfml-window -lsfml-system -O3
 
 SRC_DIR = src
 OBJ_DIR = obj
