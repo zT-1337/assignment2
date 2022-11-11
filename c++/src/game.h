@@ -77,6 +77,8 @@ class Game
   void createPlayerConfigFromFile(std::ifstream & config_file);
   void setPaused(bool paused);
 
+  void applyInputToPlayerVelocity();
+
   void sMovement();
   void sUserInput();
   void sLifespan();

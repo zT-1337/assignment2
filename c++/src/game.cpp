@@ -124,6 +124,93 @@ void Game::spawnPlayer()
   player->cInput = std::make_shared<CInput>();
 }
 
+void Game::sUserInput()
+{
+  sf::Event event;
+  while(m_window.pollEvent(event))
+  {
+    if(event.type == sf::Event::KeyPressed)
+    {
+      switch(event.key.code)
+      {
+        case sf::Keyboard::W:
+          m_player->cInput->up = true;
+          break;
+        case sf::Keyboard::S:
+          m_player->cInput->down = true;
+          break;
+        case sf::Keyboard::A:
+          m_player->cInput->left = true;
+          break;
+        case sf::Keyboard::D:
+          m_player->cInput->right = true;
+          break;
+        default:
+          break;
+      }
+    }
+
+    if(event.type == sf::Event::KeyReleased)
+    {
+      switch(event.key.code)
+      {
+        case sf::Keyboard::W:
+          m_player->cInput->up = false;
+          break;
+        case sf::Keyboard::S:
+          m_player->cInput->down = false;
+          break;
+        case sf::Keyboard::A:
+          m_player->cInput->left = false;
+          break;
+        case sf::Keyboard::D:
+          m_player->cInput->right = false;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+}
+
+void Game::sMovement()
+{
+  applyInputToPlayerVelocity();
+
+  for(auto& e : m_entities.getEntities())
+  {
+    if(e->cTransform)
+    {
+      e->cTransform->pos += e->cTransform->velocity;
+    }
+  }
+}
+
+void Game::applyInputToPlayerVelocity()
+{
+  m_player->cTransform->velocity.origin();
+
+  if(m_player->cInput->up)
+  {
+    m_player->cTransform->velocity.y -= 1;
+  }
+  if(m_player->cInput->down)
+  {
+    m_player->cTransform->velocity.y += 1;
+  }
+  if(m_player->cInput->left)
+  {
+    m_player->cTransform->velocity.x -= 1;
+  }
+  if(m_player->cInput->right)
+  {
+    m_player->cTransform->velocity.x += 1;
+  }
+
+  m_player->cTransform->velocity.normalize();
+  m_player->cTransform->velocity *= m_playerConfig.speed;
+}
+
 void Game::sRender()
 {
   m_window.clear();
@@ -132,21 +219,19 @@ void Game::sRender()
 
   for(auto& e : m_entities.getEntities())
   {
-    auto entity_shape = e->cShape;
-    if(!entity_shape)
+    if(!e->cShape)
     {
       continue;
     }
 
-    auto entity_transform = e->cTransform;
-    if(entity_transform)
+    if(e->cTransform)
     {
-      entity_transform->angle += 2.0f;
-      entity_shape->circle.setPosition(entity_transform->pos.x, entity_transform->pos.y);
-      entity_shape->circle.setRotation(entity_transform->angle);
+      e->cTransform->angle += 2.0f;
+      e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+      e->cShape->circle.setRotation(e->cTransform->angle);
     }
 
-    m_window.draw(entity_shape->circle);
+    m_window.draw(e->cShape->circle);
   }
 
   m_window.display();
@@ -157,6 +242,9 @@ void Game::run()
   while(m_running)
   {
     m_entities.update();
+    sUserInput();
+    sMovement();
     sRender();
+    m_currentFrame++;
   }
 }

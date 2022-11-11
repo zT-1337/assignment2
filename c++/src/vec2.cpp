@@ -78,6 +78,11 @@ float Vec2::length() const
 
 void Vec2::normalize()
 {
+  if(x == 0 && y == 0)
+  {
+    return;
+  }
+
   *this /= length();
 }
 
