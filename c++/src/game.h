@@ -3,6 +3,8 @@
 #include "entity_manager.h"
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include <fstream>
+#include <iostream>
 
 struct PlayerConfig 
 {
@@ -70,6 +72,8 @@ class Game
   std::shared_ptr<Entity> m_player;
 
   void init(const std::string & config_path);
+  void createWindowFromConfig(std::ifstream & config_file);
+  void createFontAndTextFromConfig(std::ifstream & config_file);
   void setPaused(bool paused);
 
   void sMovement();
