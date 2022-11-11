@@ -69,17 +69,21 @@ class Game
   bool m_paused = false;
   bool m_running = true;
 
+  Vec2 m_worldCenter;
+  Vec2 m_topLeftPlayerBound;
+  Vec2 m_bottomRightPlayerBound;
+
   std::shared_ptr<Entity> m_player;
 
   void init(const std::string & config_path);
   void createWindowFromFile(std::ifstream & config_file);
   void createFontAndTextFromFile(std::ifstream & config_file);
   void createPlayerConfigFromFile(std::ifstream & config_file);
+  void calcPointsOfInterest();
   void setPaused(bool paused);
 
-  void applyInputToPlayerVelocity();
-
   void sMovement();
+  void ssMovePlayer();
   void sUserInput();
   void sLifespan();
   void sRender();

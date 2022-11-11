@@ -20,6 +20,7 @@ void Game::init(const std::string & config_path)
   createPlayerConfigFromFile(config_file);
   config_file.close();
 
+  calcPointsOfInterest();
   spawnPlayer();
 }
 
@@ -99,14 +100,26 @@ void Game::createPlayerConfigFromFile(std::ifstream & config_file)
               >> m_playerConfig.outlineThickness >> m_playerConfig.shapeVertices;
 }
 
+void Game::calcPointsOfInterest()
+{
+  auto window_dimensions = m_window.getSize();
+  m_worldCenter.x = window_dimensions.x / 2;
+  m_worldCenter.y = window_dimensions.y / 2;
+
+  m_topLeftPlayerBound.x = m_playerConfig.collisionRadius;
+  m_topLeftPlayerBound.y = m_playerConfig.collisionRadius;
+
+  m_bottomRightPlayerBound.x = window_dimensions.x - m_playerConfig.collisionRadius;
+  m_bottomRightPlayerBound.y = window_dimensions.y - m_playerConfig.collisionRadius;
+}
+
 void Game::spawnPlayer()
 {
   auto player = m_entities.addEntity("player");
   m_player = player;
 
-  auto window_dimensions = m_window.getSize();
   player->cTransform = std::make_shared<CTransform>(
-    Vec2(window_dimensions.x/2, window_dimensions.y/2),
+    Vec2(m_worldCenter.x, m_worldCenter.y),
     Vec2(),
     0
   );
@@ -179,18 +192,10 @@ void Game::sUserInput()
 
 void Game::sMovement()
 {
-  applyInputToPlayerVelocity();
-
-  for(auto& e : m_entities.getEntities())
-  {
-    if(e->cTransform)
-    {
-      e->cTransform->pos += e->cTransform->velocity;
-    }
-  }
+  ssMovePlayer();
 }
 
-void Game::applyInputToPlayerVelocity()
+void Game::ssMovePlayer()
 {
   m_player->cTransform->velocity.origin();
 
@@ -213,13 +218,12 @@ void Game::applyInputToPlayerVelocity()
 
   m_player->cTransform->velocity.normalize();
   m_player->cTransform->velocity *= m_playerConfig.speed;
+  m_player->cTransform->pos.clampedAddition(m_player->cTransform->velocity, m_topLeftPlayerBound, m_bottomRightPlayerBound);
 }
 
 void Game::sRender()
 {
   m_window.clear();
-
-  m_window.draw(m_text);
 
   for(auto& e : m_entities.getEntities())
   {
@@ -238,6 +242,7 @@ void Game::sRender()
     m_window.draw(e->cShape->circle);
   }
 
+  m_window.draw(m_text);
   m_window.display();
 }
 

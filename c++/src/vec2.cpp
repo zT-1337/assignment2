@@ -91,3 +91,9 @@ void Vec2::origin()
   x = 0;
   y = 0;
 }
+
+void Vec2::clampedAddition(const Vec2 & toAdd, const Vec2 & min, const Vec2 & max)
+{
+  x = std::clamp(x + toAdd.x, min.x, max.x);
+  y = std::clamp(y + toAdd.y, min.y, max.y);
+}
