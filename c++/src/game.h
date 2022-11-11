@@ -72,8 +72,9 @@ class Game
   std::shared_ptr<Entity> m_player;
 
   void init(const std::string & config_path);
-  void createWindowFromConfig(std::ifstream & config_file);
-  void createFontAndTextFromConfig(std::ifstream & config_file);
+  void createWindowFromFile(std::ifstream & config_file);
+  void createFontAndTextFromFile(std::ifstream & config_file);
+  void createPlayerConfigFromFile(std::ifstream & config_file);
   void setPaused(bool paused);
 
   void sMovement();
