@@ -45,7 +45,7 @@ Vec2 Vec2::operator / (const float value) const
 void Vec2::operator += (const Vec2 & rhs)
 {
   x += rhs.x;
-  y += rhs.y; 
+  y += rhs.y;
 }
 
 void Vec2::operator -= (const Vec2 & rhs)
@@ -79,4 +79,10 @@ float Vec2::length() const
 void Vec2::normalize()
 {
   *this /= length();
+}
+
+void Vec2::origin()
+{
+  x = 0;
+  y = 0;
 }
