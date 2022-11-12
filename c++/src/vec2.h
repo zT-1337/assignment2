@@ -31,4 +31,5 @@ public:
   void normalize();
   void origin();
   void clampedAddition(const Vec2 & toAdd, const Vec2 & min, const Vec2 & max);
+  void clamp(const Vec2 & min, const Vec2 & max);
 };

@@ -207,6 +207,42 @@ void Game::spawnEnemy()
   enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.collisionRadius);
 }
 
+void Game::spawnChildEnemies(std::shared_ptr<Entity> enemy)
+{
+  float degree_offset = 360.0f / enemy->cShape->circle.getPointCount();
+  float enemy_speed = enemy->cTransform->velocity.length();
+
+  for(size_t i = 0; i < enemy->cShape->circle.getPointCount(); ++i)
+  {
+    auto child_enemy = m_entities.addEntity("enemy");
+
+    float current_degree = degree_offset * i;
+    float current_radiant = current_degree * PI / 180.0f;
+
+    Vec2 child_angle(cos(current_radiant), sin(current_radiant));
+    Vec2 child_pos = (child_angle * (enemy->cCollision->radius * 1.5f)) + enemy->cTransform->pos;
+    Vec2 child_velocity = child_angle * enemy_speed; 
+
+    child_enemy->cTransform = std::make_shared<CTransform>(
+      child_pos,
+      child_velocity,
+      0
+    );
+
+    child_enemy->cShape = std::make_shared<CShape>(
+      m_enemyConfig.shapeRadius / 2.0f,
+      enemy->cShape->circle.getPointCount(),
+      enemy->cShape->circle.getFillColor(),
+      sf::Color(m_enemyConfig.outlineColorR, m_enemyConfig.outlineColorG, m_enemyConfig.outlineColorB),
+      m_enemyConfig.outlineThickness
+    );
+
+    child_enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.collisionRadius / 2.0f);
+
+    child_enemy->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.childLifespan);
+  }
+}
+
 void Game::spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos)
 {
   auto bullet = m_entities.addEntity("bullet");
@@ -408,7 +444,12 @@ void Game::sCollision()
       {
         bullet->destroy();
         enemy->destroy();
-        //Spawn child enemies if enemy has no lifespan component
+
+        //normal enemies dont have a lifespan only the children have
+        if(!enemy->cLifespan)
+        {
+          spawnChildEnemies(enemy);
+        }
       }
     }
   }
