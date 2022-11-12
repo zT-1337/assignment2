@@ -408,7 +408,7 @@ void Game::sCollision()
       {
         bullet->destroy();
         enemy->destroy();
-        //Spawn child enemies
+        //Spawn child enemies if enemy has no lifespan component
       }
     }
   }
