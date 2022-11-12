@@ -178,9 +178,13 @@ void Game::spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos)
 {
   auto bullet = m_entities.addEntity("bullet");
 
+  Vec2 bullet_velocity = mousePos - shooter->cTransform->pos;
+  bullet_velocity.normalize();
+  bullet_velocity *= m_bulletConfig.speed;
+
   bullet->cTransform = std::make_shared<CTransform>(
     Vec2(shooter->cTransform->pos.x, shooter->cTransform->pos.y),
-    Vec2(),
+    bullet_velocity,
     0
   );
 
@@ -192,9 +196,8 @@ void Game::spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos)
     m_bulletConfig.outlineThickness
   );
 
-  bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.lifespan);
-
   bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.collisionRadius);
+  bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.lifespan);
 }
 
 void Game::sUserInput()
@@ -240,8 +243,8 @@ void Game::sUserInput()
           m_player->cInput->right = false;
           break;
         case sf::Keyboard::Escape:
-          m_running = false;
           m_window.close();
+          exit(0);
           break;
         default:
           break;
@@ -254,7 +257,7 @@ void Game::sUserInput()
       {
         case sf::Mouse::Left:
         {
-          auto mouse_pos = sf::Mouse::getPosition();
+          auto mouse_pos = sf::Mouse::getPosition(m_window);
           spawnBullet(m_player, Vec2(mouse_pos.x, mouse_pos.y));
           break;
         }
@@ -268,6 +271,11 @@ void Game::sUserInput()
 void Game::sMovement()
 {
   ssMovePlayer();
+
+  for(auto& e : m_entities.getEntities("bullet"))
+  {
+    e->cTransform->pos += e->cTransform->velocity;
+  }
 }
 
 void Game::ssMovePlayer()
