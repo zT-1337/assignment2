@@ -174,6 +174,29 @@ void Game::spawnPlayer()
   player->cInput = std::make_shared<CInput>();
 }
 
+void Game::spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos)
+{
+  auto bullet = m_entities.addEntity("bullet");
+
+  bullet->cTransform = std::make_shared<CTransform>(
+    Vec2(shooter->cTransform->pos.x, shooter->cTransform->pos.y),
+    Vec2(),
+    0
+  );
+
+  bullet->cShape = std::make_shared<CShape>(
+    m_bulletConfig.shapeRadius,
+    m_bulletConfig.shapeVertices,
+    sf::Color(m_bulletConfig.fillColorR, m_bulletConfig.fillColorG, m_bulletConfig.fillColorB),
+    sf::Color(m_bulletConfig.outlineColorR, m_bulletConfig.outlineColorG, m_bulletConfig.outlineColorB),
+    m_bulletConfig.outlineThickness
+  );
+
+  bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.lifespan);
+
+  bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.collisionRadius);
+}
+
 void Game::sUserInput()
 {
   sf::Event event;
@@ -224,6 +247,21 @@ void Game::sUserInput()
           break;
       }
     }
+
+    if(event.type == sf::Event::MouseButtonPressed)
+    {
+      switch (event.mouseButton.button)
+      {
+        case sf::Mouse::Left:
+        {
+          auto mouse_pos = sf::Mouse::getPosition();
+          spawnBullet(m_player, Vec2(mouse_pos.x, mouse_pos.y));
+          break;
+        }
+        default:
+          break;
+      }
+    }
   }
 }
 
@@ -258,6 +296,23 @@ void Game::ssMovePlayer()
   m_player->cTransform->pos.clampedAddition(m_player->cTransform->velocity, m_topLeftPlayerBound, m_bottomRightPlayerBound);
 }
 
+void Game::sLifespan()
+{
+  for(auto& e : m_entities.getEntities())
+  {
+    if(!e->cLifespan)
+    {
+      continue;
+    }
+
+    e->cLifespan->remaining -= 1;
+    if(e->cLifespan->remaining < 1)
+    {
+      e->destroy();
+    }
+  }
+}
+
 void Game::sRender()
 {
   m_window.clear();
@@ -290,6 +345,7 @@ void Game::run()
     m_entities.update();
     sUserInput();
     sMovement();
+    sLifespan();
     sRender();
     m_currentFrame++;
   }
