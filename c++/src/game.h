@@ -79,6 +79,8 @@ class Game
   void createWindowFromFile(std::ifstream & config_file);
   void createFontAndTextFromFile(std::ifstream & config_file);
   void createPlayerConfigFromFile(std::ifstream & config_file);
+  void createEnemyConfigFromFile(std::ifstream & config_file);
+  void createBulletConfigFromFile(std::ifstream & config_file);
   void calcPointsOfInterest();
   void setPaused(bool paused);
 

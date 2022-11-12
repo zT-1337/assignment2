@@ -18,6 +18,8 @@ void Game::init(const std::string & config_path)
   createWindowFromFile(config_file);
   createFontAndTextFromFile(config_file);
   createPlayerConfigFromFile(config_file);
+  createEnemyConfigFromFile(config_file);
+  createBulletConfigFromFile(config_file);
   config_file.close();
 
   calcPointsOfInterest();
@@ -98,6 +100,41 @@ void Game::createPlayerConfigFromFile(std::ifstream & config_file)
               >> m_playerConfig.fillColorR >> m_playerConfig.fillColorG >> m_playerConfig.fillColorB
               >> m_playerConfig.outlineColorR >> m_playerConfig.outlineColorG >> m_playerConfig.outlineColorB
               >> m_playerConfig.outlineThickness >> m_playerConfig.shapeVertices;
+}
+
+void Game::createEnemyConfigFromFile(std::ifstream & config_file)
+{
+  std::string object_type;
+  config_file >> object_type;
+
+  if(object_type != "Enemy")
+  {
+    std::cerr << "Expected Enemy object type, but got " << object_type << std::endl;
+    config_file.close();
+    exit(-1);
+  }
+
+  config_file >> m_enemyConfig.shapeRadius >> m_enemyConfig.collisionRadius >> m_enemyConfig.minSpeed >> m_enemyConfig.maxSpeed
+              >> m_enemyConfig.outlineColorR >> m_enemyConfig.outlineColorG >> m_enemyConfig.outlineColorB >> m_enemyConfig.outlineThickness
+              >> m_enemyConfig.minShapeVertices >> m_enemyConfig.maxShapeVertices >> m_enemyConfig.childLifespan >> m_enemyConfig.spawnInterval;
+}
+
+void Game::createBulletConfigFromFile(std::ifstream & config_file)
+{
+  std::string object_type;
+  config_file >> object_type;
+
+  if(object_type != "Bullet")
+  {
+    std::cerr << "Expected Bullet object type, but got " << object_type << std::endl;
+    config_file.close();
+    exit(-1);
+  }
+
+  config_file >> m_bulletConfig.shapeRadius >> m_bulletConfig.collisionRadius >> m_bulletConfig.speed
+              >> m_bulletConfig.fillColorR >> m_bulletConfig.fillColorG >> m_bulletConfig.fillColorB
+              >> m_bulletConfig.outlineColorR >> m_bulletConfig.outlineColorG >> m_bulletConfig.outlineColorB
+              >> m_bulletConfig.outlineThickness >> m_bulletConfig.shapeVertices >> m_bulletConfig.lifespan;
 }
 
 void Game::calcPointsOfInterest()
