@@ -96,6 +96,8 @@ class Game
   void sEnemySpawner();
   void sCollision();
 
+  bool isColliding(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b);
+
   void spawnPlayer();
   void spawnEnemy();
   void spawnChildEnemies(std::shared_ptr<Entity> enemy);

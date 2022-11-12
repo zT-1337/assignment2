@@ -391,6 +391,39 @@ void Game::sEnemySpawner()
   }
 }
 
+void Game::sCollision()
+{
+  for(auto& enemy : m_entities.getEntities("enemy"))
+  {
+    if(isColliding(enemy, m_player))
+    {
+      m_player->destroy();
+      enemy->destroy();
+      spawnPlayer();
+    }
+
+    for(auto& bullet : m_entities.getEntities("bullet"))
+    {
+      if(isColliding(enemy, bullet))
+      {
+        bullet->destroy();
+        enemy->destroy();
+        //Spawn child enemies
+      }
+    }
+  }
+}
+
+bool Game::isColliding(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b)
+{
+  Vec2 distance_vec = a->cTransform->pos - b->cTransform->pos;
+  int radius_sum = a->cCollision->radius + b->cCollision->radius;
+
+  return radius_sum * radius_sum > distance_vec.x*distance_vec.x + distance_vec.y*distance_vec.y; 
+
+  return true;
+}
+
 void Game::sRender()
 {
   m_window.clear();
@@ -435,6 +468,7 @@ void Game::run()
     sMovement();
     sLifespan();
     sEnemySpawner();
+    sCollision();
     sRender();
     m_currentFrame++;
   }
