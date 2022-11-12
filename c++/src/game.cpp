@@ -310,25 +310,8 @@ void Game::sUserInput()
 void Game::sMovement()
 {
   ssMovePlayer();
-
-  for(auto& e : m_entities.getEntities("bullet"))
-  {
-    e->cTransform->pos += e->cTransform->velocity;
-  }
-
-  for(auto& e : m_entities.getEntities("enemy"))
-  {
-    e->cTransform->pos += e->cTransform->velocity;
-
-    if(e->cTransform->pos.x < m_topLeftEnemyBound.x || e->cTransform->pos.x > m_bottomRightEnemyBound.x)
-    {
-      e->cTransform->velocity.x *= -1;
-    }
-    if(e->cTransform->pos.y < m_topLeftEnemyBound.y || e->cTransform->pos.y > m_bottomRightEnemyBound.y)
-    {
-      e->cTransform->velocity.y *= -1;
-    }
-  }
+  ssMoveBullets();
+  ssMoveEnemies();
 }
 
 void Game::ssMovePlayer()
@@ -355,6 +338,31 @@ void Game::ssMovePlayer()
   m_player->cTransform->velocity.normalize();
   m_player->cTransform->velocity *= m_playerConfig.speed;
   m_player->cTransform->pos.clampedAddition(m_player->cTransform->velocity, m_topLeftPlayerBound, m_bottomRightPlayerBound);
+}
+
+void Game::ssMoveBullets()
+{
+  for(auto& e : m_entities.getEntities("bullet"))
+  {
+    e->cTransform->pos += e->cTransform->velocity;
+  }
+}
+
+void Game::ssMoveEnemies()
+{
+  for(auto& e : m_entities.getEntities("enemy"))
+  {
+    e->cTransform->pos += e->cTransform->velocity;
+
+    if(e->cTransform->pos.x < m_topLeftEnemyBound.x || e->cTransform->pos.x > m_bottomRightEnemyBound.x)
+    {
+      e->cTransform->velocity.x *= -1;
+    }
+    if(e->cTransform->pos.y < m_topLeftEnemyBound.y || e->cTransform->pos.y > m_bottomRightEnemyBound.y)
+    {
+      e->cTransform->velocity.y *= -1;
+    }
+  }
 }
 
 void Game::sLifespan()

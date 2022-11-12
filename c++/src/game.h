@@ -88,6 +88,8 @@ class Game
 
   void sMovement();
   void ssMovePlayer();
+  void ssMoveBullets();
+  void ssMoveEnemies();
   void sUserInput();
   void sLifespan();
   void sRender();
