@@ -7,6 +7,8 @@ Game::Game(const std::string & config_path)
 
 void Game::init(const std::string & config_path)
 {
+  std::srand(std::time(NULL));
+
   std::ifstream config_file(config_path);
   if(!config_file)
   {
@@ -148,6 +150,12 @@ void Game::calcPointsOfInterest()
 
   m_bottomRightPlayerBound.x = window_dimensions.x - m_playerConfig.collisionRadius;
   m_bottomRightPlayerBound.y = window_dimensions.y - m_playerConfig.collisionRadius;
+
+  m_topLeftEnemyBound.x = m_enemyConfig.collisionRadius;
+  m_topLeftEnemyBound.y = m_enemyConfig.collisionRadius;
+
+  m_bottomRightEnemyBound.x = window_dimensions.x - m_enemyConfig.collisionRadius;
+  m_bottomRightEnemyBound.y = window_dimensions.y - m_enemyConfig.collisionRadius;
 }
 
 void Game::spawnPlayer()
@@ -174,6 +182,31 @@ void Game::spawnPlayer()
   player->cInput = std::make_shared<CInput>();
 }
 
+void Game::spawnEnemy()
+{
+  auto enemy = m_entities.addEntity("enemy");
+
+  Vec2 enemy_velocity(rand(), rand());
+  enemy_velocity.normalize();
+  enemy_velocity *= randomIntInRange(m_enemyConfig.minSpeed, m_enemyConfig.maxSpeed);
+
+  enemy->cTransform = std::make_shared<CTransform>(
+    Vec2(randomIntInRange(m_topLeftEnemyBound.x, m_bottomRightEnemyBound.x), randomIntInRange(m_topLeftEnemyBound.y, m_bottomRightEnemyBound.y)),
+    enemy_velocity,
+    0
+  );
+
+  enemy->cShape = std::make_shared<CShape>(
+    m_enemyConfig.shapeRadius,
+    randomIntInRange(m_enemyConfig.minShapeVertices, m_enemyConfig.maxShapeVertices),
+    sf::Color(randomIntInRange(0, 255), randomIntInRange(0, 255), randomIntInRange(0, 255)),
+    sf::Color(m_enemyConfig.outlineColorR, m_enemyConfig.outlineColorG, m_enemyConfig.outlineColorB),
+    m_enemyConfig.outlineThickness
+  );
+
+  enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.collisionRadius);
+}
+
 void Game::spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos)
 {
   auto bullet = m_entities.addEntity("bullet");
@@ -198,6 +231,12 @@ void Game::spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos)
 
   bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.collisionRadius);
   bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.lifespan);
+}
+
+int Game::randomIntInRange(int min, int max)
+{
+  int r = rand() % (1 + max - min);
+  return r + min;
 }
 
 void Game::sUserInput()
@@ -321,6 +360,15 @@ void Game::sLifespan()
   }
 }
 
+void Game::sEnemySpawner()
+{
+  if(m_lastEnemySpawnTime + m_enemyConfig.spawnInterval == m_currentFrame)
+  {
+    spawnEnemy();
+    m_lastEnemySpawnTime = m_currentFrame;
+  }
+}
+
 void Game::sRender()
 {
   m_window.clear();
@@ -364,6 +412,7 @@ void Game::run()
     sUserInput();
     sMovement();
     sLifespan();
+    sEnemySpawner();
     sRender();
     m_currentFrame++;
   }

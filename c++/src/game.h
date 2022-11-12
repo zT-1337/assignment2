@@ -72,6 +72,8 @@ class Game
   Vec2 m_worldCenter;
   Vec2 m_topLeftPlayerBound;
   Vec2 m_bottomRightPlayerBound;
+  Vec2 m_topLeftEnemyBound;
+  Vec2 m_bottomRightEnemyBound;
 
   std::shared_ptr<Entity> m_player;
 
@@ -97,6 +99,8 @@ class Game
   void spawnChildEnemies(std::shared_ptr<Entity> enemy);
   void spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos);
   void spawnSpecialWeapon(std::shared_ptr<Entity> shooter);
+
+  int randomIntInRange(int min, int max);
 
 public:
   Game(const std::string & config_path);
