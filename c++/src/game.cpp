@@ -158,6 +158,11 @@ void Game::calcPointsOfInterest()
   m_bottomRightEnemyBound.y = window_dimensions.y - m_enemyConfig.collisionRadius;
 }
 
+void Game::setPaused(bool paused)
+{
+  m_paused = paused;
+}
+
 void Game::spawnPlayer()
 {
   auto player = m_entities.addEntity("player");
@@ -205,6 +210,8 @@ void Game::spawnEnemy()
   );
 
   enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.collisionRadius);
+
+  enemy->cScore = std::make_shared<CScore>(100*enemy->cShape->circle.getPointCount());
 }
 
 void Game::spawnChildEnemies(std::shared_ptr<Entity> enemy)
@@ -240,6 +247,7 @@ void Game::spawnChildEnemies(std::shared_ptr<Entity> enemy)
     child_enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.collisionRadius / 2.0f);
 
     child_enemy->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.childLifespan);
+    child_enemy->cScore = std::make_shared<CScore>(200*child_enemy->cShape->circle.getPointCount());
   }
 }
 
@@ -320,6 +328,9 @@ void Game::sUserInput()
         case sf::Keyboard::Escape:
           m_window.close();
           exit(0);
+          break;
+        case sf::Keyboard::P:
+          setPaused(!m_paused);
           break;
         default:
           break;
@@ -420,10 +431,11 @@ void Game::sLifespan()
 
 void Game::sEnemySpawner()
 {
-  if(m_lastEnemySpawnTime + m_enemyConfig.spawnInterval == m_currentFrame)
+  ++m_lastEnemySpawnTime;
+  if(m_lastEnemySpawnTime == m_enemyConfig.spawnInterval)
   {
     spawnEnemy();
-    m_lastEnemySpawnTime = m_currentFrame;
+    m_lastEnemySpawnTime = 0;
   }
 }
 
@@ -444,6 +456,8 @@ void Game::sCollision()
       {
         bullet->destroy();
         enemy->destroy();
+        m_score += enemy->cScore->score;
+        m_text.setString("Score: " + std::to_string(m_score));
 
         //normal enemies dont have a lifespan only the children have
         if(!enemy->cLifespan)
@@ -505,12 +519,17 @@ void Game::run()
   while(m_running)
   {
     m_entities.update();
+
     sUserInput();
-    sMovement();
-    sLifespan();
-    sEnemySpawner();
-    sCollision();
+    if(!m_paused)
+    {
+      sMovement();
+      sLifespan();
+      sEnemySpawner();
+      sCollision();
+    }
     sRender();
+
     m_currentFrame++;
   }
 }
