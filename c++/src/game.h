@@ -88,6 +88,7 @@ class Game
   void createBulletConfigFromFile(std::ifstream & config_file);
   void calcPointsOfInterest();
   void setPaused(bool paused);
+  void setScore(int score);
 
   void sMovement();
   void ssMovePlayer();

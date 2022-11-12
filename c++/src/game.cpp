@@ -163,6 +163,12 @@ void Game::setPaused(bool paused)
   m_paused = paused;
 }
 
+void Game::setScore(int score)
+{
+  m_score = score;
+  m_text.setString("Score: " + std::to_string(m_score));
+}
+
 void Game::spawnPlayer()
 {
   auto player = m_entities.addEntity("player");
@@ -447,6 +453,7 @@ void Game::sCollision()
     {
       m_player->destroy();
       enemy->destroy();
+      setScore(0);
       spawnPlayer();
     }
 
@@ -456,8 +463,7 @@ void Game::sCollision()
       {
         bullet->destroy();
         enemy->destroy();
-        m_score += enemy->cScore->score;
-        m_text.setString("Score: " + std::to_string(m_score));
+        setScore(m_score + enemy->cScore->score);
 
         //normal enemies dont have a lifespan only the children have
         if(!enemy->cLifespan)
