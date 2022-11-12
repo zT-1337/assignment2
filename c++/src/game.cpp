@@ -315,6 +315,20 @@ void Game::sMovement()
   {
     e->cTransform->pos += e->cTransform->velocity;
   }
+
+  for(auto& e : m_entities.getEntities("enemy"))
+  {
+    e->cTransform->pos += e->cTransform->velocity;
+
+    if(e->cTransform->pos.x < m_topLeftEnemyBound.x || e->cTransform->pos.x > m_bottomRightEnemyBound.x)
+    {
+      e->cTransform->velocity.x *= -1;
+    }
+    if(e->cTransform->pos.y < m_topLeftEnemyBound.y || e->cTransform->pos.y > m_bottomRightEnemyBound.y)
+    {
+      e->cTransform->velocity.y *= -1;
+    }
+  }
 }
 
 void Game::ssMovePlayer()
