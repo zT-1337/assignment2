@@ -339,6 +339,16 @@ void Game::sRender()
       e->cShape->circle.setRotation(e->cTransform->angle);
     }
 
+    if(e->cLifespan)
+    {
+      int opacity = 255 * ((float)e->cLifespan->remaining / e->cLifespan->total);
+      sf::Color fill_color = e->cShape->circle.getFillColor();
+      sf::Color outline_color = e->cShape->circle.getOutlineColor();
+
+      e->cShape->circle.setFillColor(sf::Color(fill_color.r, fill_color.g, fill_color.b, opacity));
+      e->cShape->circle.setOutlineColor(sf::Color(outline_color.r, outline_color.g, outline_color.b, opacity));
+    }
+
     m_window.draw(e->cShape->circle);
   }
 
