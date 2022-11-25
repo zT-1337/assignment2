@@ -23,6 +23,7 @@ public:
   std::shared_ptr<CScore> cScore;
   std::shared_ptr<CLifespan> cLifespan;
   std::shared_ptr<CKillstreak> cKillstreak;
+  std::shared_ptr<CSuperArmor> cSuperArmor;
 
   bool isActive() const;
   const std::string & tag() const;

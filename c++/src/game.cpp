@@ -176,6 +176,11 @@ void Game::setScore(int score)
   m_text.setString("Score: " + std::to_string(m_score));
 }
 
+void Game::setKillstreak(int killstreak)
+{
+  m_killstreak_text.setString("Killstreak: " + std::to_string(killstreak) + "/" + std::to_string(m_req_killstreak));
+}
+
 void Game::spawnPlayer()
 {
   auto player = m_entities.addEntity("player");
@@ -196,10 +201,40 @@ void Game::spawnPlayer()
   );
 
   player->cCollision = std::make_shared<CCollision>(m_playerConfig.collisionRadius);
-
   player->cInput = std::make_shared<CInput>();
-
   player->cKillstreak = std::make_shared<CKillstreak>(m_req_killstreak);
+  player->cSuperArmor = std::make_shared<CSuperArmor>();
+  setKillstreak(0);
+}
+
+void Game::spawnKillstreak()
+{
+  if(m_player->cKillstreak->streak < m_player->cKillstreak->reqStreak)
+  {
+    return;
+  }
+
+  m_player->cKillstreak->streak -= m_player->cKillstreak->reqStreak;
+  setKillstreak(m_player->cKillstreak->streak);
+
+  auto killstreak = m_entities.addEntity("killstreak");
+
+  killstreak->cTransform = std::make_shared<CTransform>(
+    Vec2(m_player->cTransform->pos.x, m_player->cTransform->pos.y),
+    Vec2(),
+    0
+  );
+
+  killstreak->cShape = std::make_shared<CShape>(
+    m_playerConfig.shapeRadius * 2.5,
+    3,
+    sf::Color::Transparent,
+    sf::Color::Yellow,
+    m_playerConfig.outlineThickness 
+  );
+
+  killstreak->cCollision = std::make_shared<CCollision>(m_playerConfig.collisionRadius * 2.5);
+  killstreak->cLifespan = std::make_shared<CLifespan>(600);
 }
 
 void Game::spawnEnemy()
@@ -362,6 +397,11 @@ void Game::sUserInput()
           spawnBullet(m_player, Vec2(mouse_pos.x, mouse_pos.y));
           break;
         }
+        case sf::Mouse::Right:
+        {
+          spawnKillstreak();
+          break;
+        }
         default:
           break;
       }
@@ -372,6 +412,7 @@ void Game::sUserInput()
 void Game::sMovement()
 {
   ssMovePlayer();
+  ssMoveKillstreak();
   ssMoveBullets();
   ssMoveEnemies();
 }
@@ -400,6 +441,14 @@ void Game::ssMovePlayer()
   m_player->cTransform->velocity.normalize();
   m_player->cTransform->velocity *= m_playerConfig.speed;
   m_player->cTransform->pos.clampedAddition(m_player->cTransform->velocity, m_topLeftPlayerBound, m_bottomRightPlayerBound);
+}
+
+void Game::ssMoveKillstreak() {
+  for(auto& e : m_entities.getEntities("killstreak"))
+  {
+    e->cTransform->pos.x = m_player->cTransform->pos.x;
+    e->cTransform->pos.y = m_player->cTransform->pos.y;
+  }
 }
 
 void Game::ssMoveBullets()
@@ -454,11 +503,16 @@ void Game::sEnemySpawner()
   }
 }
 
+void Game::sSuperArmor()
+{
+  m_player->cSuperArmor->isActive = m_entities.getEntities("killstreak").size() > 0;
+}
+
 void Game::sCollision()
 {
   for(auto& enemy : m_entities.getEntities("enemy"))
   {
-    if(isColliding(enemy, m_player))
+    if(!m_player->cSuperArmor->isActive && isColliding(enemy, m_player))
     {
       m_player->destroy();
       enemy->destroy();
@@ -471,6 +525,23 @@ void Game::sCollision()
       if(isColliding(enemy, bullet))
       {
         bullet->destroy();
+        enemy->destroy();
+        setScore(m_score + enemy->cScore->score);
+        m_player->cKillstreak->streak += 1;
+        setKillstreak(m_player->cKillstreak->streak);
+
+        //normal enemies dont have a lifespan only the children have
+        if(!enemy->cLifespan)
+        {
+          spawnChildEnemies(enemy);
+        }
+      }
+    }
+
+    for(auto& killstreak : m_entities.getEntities("killstreak"))
+    {
+      if(isColliding(enemy, killstreak))
+      {
         enemy->destroy();
         setScore(m_score + enemy->cScore->score);
 
@@ -542,6 +613,7 @@ void Game::run()
       sMovement();
       sLifespan();
       sEnemySpawner();
+      sSuperArmor();
       sCollision();
     }
     sRender();

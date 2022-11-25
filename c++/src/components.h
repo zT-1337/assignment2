@@ -87,3 +87,11 @@ public:
     : reqStreak(reqStreak)
     {}
 };
+
+class CSuperArmor
+{
+public:
+  bool isActive = false;
+
+  CSuperArmor() {}
+};

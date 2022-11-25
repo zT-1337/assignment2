@@ -91,9 +91,11 @@ class Game
   void calcPointsOfInterest();
   void setPaused(bool paused);
   void setScore(int score);
+  void setKillstreak(int killstreak);
 
   void sMovement();
   void ssMovePlayer();
+  void ssMoveKillstreak();
   void ssMoveBullets();
   void ssMoveEnemies();
   void sUserInput();
@@ -101,10 +103,12 @@ class Game
   void sRender();
   void sEnemySpawner();
   void sCollision();
+  void sSuperArmor();
 
   bool isColliding(std::shared_ptr<Entity> a, std::shared_ptr<Entity> b);
 
   void spawnPlayer();
+  void spawnKillstreak();
   void spawnEnemy();
   void spawnChildEnemies(std::shared_ptr<Entity> enemy);
   void spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos);
