@@ -63,10 +63,12 @@ class Game
   EntityManager m_entities;
   sf::Font m_font;
   sf::Text m_text;
+  sf::Text m_killstreak_text;
   PlayerConfig m_playerConfig;
   EnemyConfig m_enemyConfig;
   BulletConfig m_bulletConfig;
   int m_score = 0;
+  int m_req_killstreak = 10;
   int m_currentFrame = 0;
   int m_lastEnemySpawnTime = 0;
   bool m_paused = false;

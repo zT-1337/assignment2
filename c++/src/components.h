@@ -76,3 +76,14 @@ public:
 
   CInput() {}
 };
+
+class CKillstreak
+{
+public:
+  int streak = 0;
+  int reqStreak = 0;
+
+  CKillstreak(int reqStreak)
+    : reqStreak(reqStreak)
+    {}
+};

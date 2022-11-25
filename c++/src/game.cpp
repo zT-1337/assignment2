@@ -83,7 +83,14 @@ void Game::createFontAndTextFromFile(std::ifstream & config_file)
   m_text.setFont(m_font);
   m_text.setFillColor(sf::Color(font_color_r, font_color_g, font_color_b));
   m_text.setString("Score: 0");
-  m_text.setPosition(0, 0);
+  sf::FloatRect text_boundings_box = m_text.getLocalBounds();
+  m_text.setPosition(0, -text_boundings_box.top);
+
+  m_killstreak_text.setFont(m_font);
+  m_killstreak_text.setFillColor(sf::Color(font_color_r, font_color_g, font_color_b));
+  m_killstreak_text.setString("Killstreak: 0/" + std::to_string(m_req_killstreak));
+  sf::FloatRect kill_streak_bounding_box = m_killstreak_text.getLocalBounds();
+  m_killstreak_text.setPosition(0, m_window.getSize().y - kill_streak_bounding_box.height - kill_streak_bounding_box.top);
 }
 
 void Game::createPlayerConfigFromFile(std::ifstream & config_file)
@@ -191,6 +198,8 @@ void Game::spawnPlayer()
   player->cCollision = std::make_shared<CCollision>(m_playerConfig.collisionRadius);
 
   player->cInput = std::make_shared<CInput>();
+
+  player->cKillstreak = std::make_shared<CKillstreak>(m_req_killstreak);
 }
 
 void Game::spawnEnemy()
@@ -517,6 +526,7 @@ void Game::sRender()
   }
 
   m_window.draw(m_text);
+  m_window.draw(m_killstreak_text);
   m_window.display();
 }
 
