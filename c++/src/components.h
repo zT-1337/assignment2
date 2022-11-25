@@ -92,6 +92,7 @@ class CSuperArmor
 {
 public:
   bool isActive = false;
+  int lastParticleSpawn = 0;
 
   CSuperArmor() {}
 };

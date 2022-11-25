@@ -68,9 +68,10 @@ class Game
   EnemyConfig m_enemyConfig;
   BulletConfig m_bulletConfig;
   int m_score = 0;
-  int m_req_killstreak = 10;
+  int m_req_killstreak = 1;
   int m_currentFrame = 0;
   int m_lastEnemySpawnTime = 0;
+  int m_lastParticleSpawnTime = 0;
   bool m_paused = false;
   bool m_running = true;
 
@@ -96,7 +97,7 @@ class Game
   void sMovement();
   void ssMovePlayer();
   void ssMoveKillstreak();
-  void ssMoveBullets();
+  void ssMoveBulletsAndParticles();
   void ssMoveEnemies();
   void sUserInput();
   void sLifespan();
@@ -109,6 +110,7 @@ class Game
 
   void spawnPlayer();
   void spawnKillstreak();
+  void spawnArmorParticles();
   void spawnEnemy();
   void spawnChildEnemies(std::shared_ptr<Entity> enemy);
   void spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos);

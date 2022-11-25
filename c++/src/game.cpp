@@ -301,6 +301,40 @@ void Game::spawnChildEnemies(std::shared_ptr<Entity> enemy)
   }
 }
 
+void Game::spawnArmorParticles() 
+{
+  float degree_offset = 360.0f / 6;
+  float degree_start = degree_offset + randomIntInRange(0, 30);
+  
+  for(size_t i = 0; i < 6; ++i)
+  {
+    auto armor_particle = m_entities.addEntity("particle");
+
+    float current_degree = (degree_start + degree_offset * i);
+    float current_radiant = current_degree * PI / 180.0f;
+
+    Vec2 armor_particle_angle(cos(current_radiant), sin(current_radiant));
+    Vec2 armor_particle_pos = (armor_particle_angle * (m_playerConfig.collisionRadius * 1.5f)) + m_player->cTransform->pos;
+    Vec2 armor_particle_velocity = armor_particle_angle * 2;
+
+    armor_particle->cTransform = std::make_shared<CTransform>(
+      armor_particle_pos,
+      armor_particle_velocity,
+      0
+    );
+
+    armor_particle->cShape = std::make_shared<CShape>(
+      m_playerConfig.shapeRadius / 2.0f,
+      32,
+      sf::Color(255, 255, 0, 30),
+      sf::Color::Yellow,
+      m_playerConfig.outlineThickness
+    );
+
+    armor_particle->cLifespan = std::make_shared<CLifespan>(60);
+  }
+}
+
 void Game::spawnBullet(std::shared_ptr<Entity> shooter, const Vec2 & mousePos)
 {
   auto bullet = m_entities.addEntity("bullet");
@@ -413,7 +447,7 @@ void Game::sMovement()
 {
   ssMovePlayer();
   ssMoveKillstreak();
-  ssMoveBullets();
+  ssMoveBulletsAndParticles();
   ssMoveEnemies();
 }
 
@@ -451,9 +485,14 @@ void Game::ssMoveKillstreak() {
   }
 }
 
-void Game::ssMoveBullets()
+void Game::ssMoveBulletsAndParticles()
 {
   for(auto& e : m_entities.getEntities("bullet"))
+  {
+    e->cTransform->pos += e->cTransform->velocity;
+  }
+
+  for(auto& e : m_entities.getEntities("particle"))
   {
     e->cTransform->pos += e->cTransform->velocity;
   }
@@ -506,6 +545,18 @@ void Game::sEnemySpawner()
 void Game::sSuperArmor()
 {
   m_player->cSuperArmor->isActive = m_entities.getEntities("killstreak").size() > 0;
+  if(!m_player->cSuperArmor->isActive)
+  {
+    m_player->cSuperArmor->lastParticleSpawn = 0;
+    return;
+  }
+
+  if(m_player->cSuperArmor->lastParticleSpawn % 15 == 0)
+  {
+    spawnArmorParticles();
+  }
+
+  m_player->cSuperArmor->lastParticleSpawn += 1;
 }
 
 void Game::sCollision()
